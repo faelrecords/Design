@@ -13,11 +13,13 @@ import {
   Laptop,
   LayoutTemplate,
   Maximize2,
+  Minus,
   Monitor,
   Moon,
   Palette,
   PanelLeftClose,
   PanelLeftOpen,
+  Plus,
   RotateCcw,
   Save,
   Smartphone,
@@ -252,8 +254,7 @@ function App() {
                 <NavButton icon={<Palette />} label="Cores" active={section === 'colors'} onClick={() => setSection('colors')} />
                 <NavButton icon={<Type />} label="Tipografia" active={section === 'type'} onClick={() => setSection('type')} />
                 <NavButton icon={<Grid2X2 />} label="Espaçamento" active={section === 'spacing'} onClick={() => setSection('spacing')} />
-                <NavButton icon={<Maximize2 />} label="Raios" active={section === 'rounded'} onClick={() => setSection('rounded')} />
-                <NavButton icon={<Braces />} label="Componentes" active={section === 'components'} onClick={() => setSection('components')} />
+                <NavButton icon={<Maximize2 />} label="Componentes e raios" active={section === 'rounded'} onClick={() => setSection('rounded')} />
                 <NavButton icon={<Code2 />} label="Conteúdo" active={section === 'content'} onClick={() => setSection('content')} />
                 <div className="nav-spacer" />
                 <NavButton icon={<CircleHelp />} label="Sobre" onClick={() => setSection('about')} />
@@ -379,10 +380,10 @@ function FormEditor({
     )
   }
 
-  if (section === 'spacing' || section === 'rounded') {
+  if (section === 'spacing') {
     const values = data[section]
     return (
-      <EditorSection title={section === 'spacing' ? 'Espaçamento' : 'Raios'} description="Escala compartilhada entre componentes.">
+      <EditorSection title="Espaçamento" description="Escala compartilhada entre componentes.">
         {Object.entries(values).map(([key, value]) => (
           <Field key={key} label={key} value={value} onChange={(next) => setField(section, { ...values, [key]: next })} />
         ))}
@@ -390,33 +391,74 @@ function FormEditor({
     )
   }
 
-  if (section === 'components') {
+  if (section === 'rounded') {
+    const radiusConfig = [
+      { key: 'card', label: 'Cards', help: 'Cards, painéis e blocos.', max: 64 },
+      { key: 'control', label: 'Controles', help: 'Botões, campos e seletores.', max: 48 },
+      { key: 'pill', label: 'Pílulas', help: 'Badges e botões totalmente arredondados.', max: 100 },
+    ]
     return (
-      <EditorSection title="Componentes" description="Regras para elementos recorrentes.">
-        {Object.entries(data.components).map(([component, values]) => (
-          <TokenGroup key={component} title={component}>
-            {Object.entries(values).map(([key, value]) => (
-              <Field
-                key={key}
-                label={key}
-                value={value}
-                multiline
-                onChange={(next) => setField('components', { ...data.components, [component]: { ...values, [key]: next } })}
-              />
-            ))}
-          </TokenGroup>
-        ))}
+      <EditorSection title="Componentes e raios" description="Controle visual direto para cantos arredondados.">
+        <div className="radius-list">
+          {radiusConfig.map((item) => (
+            <RadiusControl
+              key={item.key}
+              label={item.label}
+              help={item.help}
+              value={data.rounded[item.key] || '0px'}
+              max={item.max}
+              onChange={(value) => setField('rounded', { ...data.rounded, [item.key]: `${value}px` })}
+            />
+          ))}
+        </div>
+        <div className="radius-preview-grid">
+          <div style={{ borderRadius: data.rounded.card }}><span>Card</span><small>Usa raio Cards</small></div>
+          <button style={{ borderRadius: data.rounded.control }}>Botão</button>
+          <span style={{ borderRadius: data.rounded.pill }}>Badge</span>
+        </div>
       </EditorSection>
     )
   }
 
   if (section === 'content') {
+    const contentFields = [
+      ['Overview', 'Visão geral', 'Objetivo e contexto do design.'],
+      ['Composition', 'Composição', 'Hierarquia e organização visual.'],
+      ['Colors', 'Uso das cores', 'Regras além dos tokens definidos em Cores.'],
+      ['Typography', 'Uso da tipografia', 'Orientações além dos estilos definidos.'],
+      ['Layout', 'Layout', 'Grid, largura, densidade e responsividade.'],
+      ['Components', 'Comportamento', 'Interação e hierarquia dos componentes.'],
+      ['Motion', 'Movimento', 'Animações, transições e feedback.'],
+      ['WebGL & Effects', 'Efeitos', 'Canvas, partículas e efeitos especiais.'],
+    ] as const
     return (
-      <EditorSection title="Conteúdo" description="Instruções Markdown após frontmatter.">
-        <label className="field stacked">
-          <span>Markdown</span>
-          <textarea className="content-textarea" value={data.content} onChange={(event) => setField('content', event.target.value)} />
-        </label>
+      <EditorSection title="Conteúdo guiado" description="Preencha instruções por assunto. Use aba Markdown para edição avançada.">
+        <div className="content-guide">
+          {contentFields.map(([heading, label, help]) => (
+            <label className="guided-field" key={heading}>
+              <span><b>{label}</b><small>{help}</small></span>
+              <textarea
+                value={readMarkdownSection(data.content, heading)}
+                onChange={(event) => setField('content', writeMarkdownSection(data.content, heading, event.target.value))}
+              />
+            </label>
+          ))}
+          <label className="guided-field">
+            <span><b>Restrições</b><small>Uma regra por linha. Marcadores são adicionados automaticamente.</small></span>
+            <textarea
+              value={readMarkdownSection(data.content, 'Guardrails').replace(/^- /gm, '')}
+              onChange={(event) => {
+                const rules = event.target.value
+                  .split('\n')
+                  .map((line) => line.trim())
+                  .filter(Boolean)
+                  .map((line) => `- ${line}`)
+                  .join('\n')
+                setField('content', writeMarkdownSection(data.content, 'Guardrails', rules))
+              }}
+            />
+          </label>
+        </div>
       </EditorSection>
     )
   }
@@ -470,6 +512,64 @@ function Field({ label, value, multiline, onChange }: { label: string; value: st
       {multiline ? <textarea value={value} onChange={(event) => onChange(event.target.value)} /> : <input value={value} onChange={(event) => onChange(event.target.value)} />}
     </label>
   )
+}
+
+function RadiusControl({
+  label,
+  help,
+  value,
+  max,
+  onChange,
+}: {
+  label: string
+  help: string
+  value: string
+  max: number
+  onChange: (value: number) => void
+}) {
+  const numericValue = Math.max(0, Number.parseInt(value, 10) || 0)
+  const update = (next: number) => onChange(Math.max(0, Math.round(next)))
+  return (
+    <div className="radius-control">
+      <div className="radius-copy"><b>{label}</b><small>{help}</small></div>
+      <input
+        aria-label={`${label} slider`}
+        type="range"
+        min="0"
+        max={max}
+        step="1"
+        value={Math.min(numericValue, max)}
+        onChange={(event) => update(Number(event.target.value))}
+      />
+      <div className="number-stepper">
+        <button aria-label={`Diminuir ${label}`} onClick={() => update(numericValue - 1)}><Minus size={13} /></button>
+        <input
+          aria-label={`${label} em pixels`}
+          type="number"
+          min="0"
+          step="1"
+          value={numericValue}
+          onChange={(event) => update(Number(event.target.value))}
+        />
+        <span>px</span>
+        <button aria-label={`Aumentar ${label}`} onClick={() => update(numericValue + 1)}><Plus size={13} /></button>
+      </div>
+    </div>
+  )
+}
+
+function readMarkdownSection(content: string, heading: string) {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const match = content.match(new RegExp(`^## ${escaped}\\s*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm'))
+  return match?.[1].trim() || ''
+}
+
+function writeMarkdownSection(content: string, heading: string, value: string) {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const section = `## ${heading}\n${value.trim()}`
+  const pattern = new RegExp(`^## ${escaped}\\s*\\n[\\s\\S]*?(?=^## |(?![\\s\\S]))`, 'm')
+  if (pattern.test(content)) return content.replace(pattern, `${section}\n\n`)
+  return `${content.trim()}\n\n${section}\n`
 }
 
 function PreviewSite({ data }: { data: DesignData }) {
