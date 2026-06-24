@@ -213,7 +213,18 @@ function App() {
         '--display-font': data.typography['display-lg']?.fontFamily || 'Inter',
         '--display-size': data.typography['display-lg']?.fontSize || '64px',
         '--display-weight': data.typography['display-lg']?.fontWeight || 600,
+        '--display-line-height': data.typography['display-lg']?.lineHeight || '1.04',
+        '--display-letter-spacing': data.typography['display-lg']?.letterSpacing || '0',
         '--body-font': data.typography['body-md']?.fontFamily || 'Inter',
+        '--body-size': data.typography['body-md']?.fontSize || '16px',
+        '--body-weight': data.typography['body-md']?.fontWeight || 400,
+        '--body-line-height': data.typography['body-md']?.lineHeight || '1.6',
+        '--body-letter-spacing': data.typography['body-md']?.letterSpacing || '0',
+        '--label-font': data.typography['label-md']?.fontFamily || 'JetBrains Mono',
+        '--label-size': data.typography['label-md']?.fontSize || '12px',
+        '--label-weight': data.typography['label-md']?.fontWeight || 600,
+        '--label-line-height': data.typography['label-md']?.lineHeight || '1.2',
+        '--label-letter-spacing': data.typography['label-md']?.letterSpacing || '0',
       }) as React.CSSProperties,
     [data],
   )
@@ -410,6 +421,29 @@ function FormEditor({
                     <small>Google Fonts</small>
                   </button>
                 </div>
+              ) : property === 'fontWeight' ? (
+                <SelectField
+                  key={property}
+                  label="fontWeight"
+                  value={String(style.fontWeight)}
+                  options={[
+                    ['100', 'Thin — 100'],
+                    ['200', 'Extra Light — 200'],
+                    ['300', 'Light — 300'],
+                    ['400', 'Regular — 400'],
+                    ['500', 'Medium — 500'],
+                    ['600', 'Semi Bold — 600'],
+                    ['700', 'Bold — 700'],
+                    ['800', 'Extra Bold — 800'],
+                    ['900', 'Black — 900'],
+                  ]}
+                  onChange={(value) =>
+                    setField('typography', {
+                      ...data.typography,
+                      [key]: { ...style, fontWeight: Number(value) },
+                    })
+                  }
+                />
               ) : (
                 <NumericControl
                   key={property}
@@ -421,7 +455,7 @@ function FormEditor({
                       ...data.typography,
                       [key]: {
                         ...style,
-                        [property]: property === 'fontWeight' ? Number(value) : value,
+                        [property]: value,
                       },
                     })
                   }
@@ -623,6 +657,29 @@ function Field({ label, value, multiline, onChange }: { label: string; value: st
   )
 }
 
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string
+  value: string
+  options: Array<[string, string]>
+  onChange: (value: string) => void
+}) {
+  return (
+    <label className="field select-field">
+      <span>{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        {options.map(([optionValue, optionLabel]) => (
+          <option key={optionValue} value={optionValue}>{optionLabel}</option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
 function RadiusControl({
   label,
   help,
@@ -676,7 +733,6 @@ type NumericConfig = {
 
 function numericConfigFor(property: keyof TypeStyle): NumericConfig {
   if (property === 'fontSize') return { min: 8, max: 144, step: 1, defaultUnit: 'px' }
-  if (property === 'fontWeight') return { min: 100, max: 900, step: 100, defaultUnit: '' }
   if (property === 'lineHeight') return { min: 0.8, max: 3, step: 0.01, defaultUnit: '' }
   return { min: -0.2, max: 0.5, step: 0.01, defaultUnit: 'em' }
 }

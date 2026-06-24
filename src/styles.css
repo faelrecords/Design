@@ -114,6 +114,11 @@ button { color: inherit; }
 .field input, .field textarea, .color-row > input:last-of-type {
   width: 100%; min-width: 0; border: 1px solid #303733; border-radius: 7px; color: #e8eeea; background: #141917; outline: none;
 }
+.select-field select {
+  width: 100%; height: 35px; padding: 0 34px 0 10px; border: 1px solid #303733; border-radius: 7px;
+  color: #e8eeea; background: #141917; outline: none; cursor: pointer;
+}
+.select-field select:focus { border-color: #3f7b5a; box-shadow: 0 0 0 2px rgba(69,229,139,.08); }
 .field input { height: 35px; padding: 0 10px; }
 .field textarea { min-height: 72px; resize: vertical; padding: 9px 10px; line-height: 1.45; }
 .field input:focus, .field textarea:focus, .color-row > input:last-of-type:focus { border-color: #3f7b5a; box-shadow: 0 0 0 2px rgba(69,229,139,.08); }
@@ -261,7 +266,9 @@ button { color: inherit; }
   --primary: #45e58b; --secondary: #fff; --accent: #9cf7c5; --background: #080b0a; --surface: #121715;
   --text-primary: #f3f7f5; --text-secondary: #94a29b; --border: #26302b; --card-radius: 16px; --control-radius: 10px;
   --pill-radius: 9999px; --base-gap: 16px; --base-space: 8px; --card-padding: 24px; --section-padding: 40px;
-  --display-font: Inter; --body-font: Inter;
+  --display-font: Inter; --display-size: 64px; --display-weight: 600; --display-line-height: 1.04; --display-letter-spacing: 0;
+  --body-font: Inter; --body-size: 16px; --body-weight: 400; --body-line-height: 1.6; --body-letter-spacing: 0;
+  --label-font: "JetBrains Mono"; --label-size: 12px; --label-weight: 600; --label-line-height: 1.2; --label-letter-spacing: 0;
   width: 100%; min-height: 100%; margin: auto; overflow: hidden; border: 1px solid #262c29; border-radius: 8px;
   color: var(--text-primary); background: var(--background); font-family: var(--body-font), Inter, sans-serif;
   box-shadow: 0 20px 70px rgba(0,0,0,.25); transition: width .25s ease;
@@ -287,14 +294,20 @@ button { color: inherit; }
 .hero-copy { position: relative; z-index: 2; }
 .demo-label {
   display: inline-flex; margin-bottom: 18px; padding: 6px 10px; border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border));
-  border-radius: var(--pill-radius); color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, transparent); font-size: 9px;
+  border-radius: var(--pill-radius); color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, transparent);
+  font-family: var(--label-font), monospace; font-size: clamp(8px, calc(var(--label-size) * .75), 15px);
+  font-weight: var(--label-weight); line-height: var(--label-line-height); letter-spacing: var(--label-letter-spacing);
 }
 .hero-copy h1 {
   max-width: 560px; margin: 0; font-family: var(--display-font), Inter, sans-serif; font-size: clamp(34px, calc(var(--display-size) * .68), 58px);
-  font-weight: var(--display-weight); line-height: 1.03; letter-spacing: -.045em;
+  font-weight: var(--display-weight); line-height: var(--display-line-height); letter-spacing: var(--display-letter-spacing);
 }
 .hero-copy h1 em { display: block; color: var(--primary); font-style: normal; }
-.hero-copy p { max-width: 500px; margin: 18px 0 22px; color: var(--text-secondary); font-size: 11px; line-height: 1.65; }
+.hero-copy p {
+  max-width: 500px; margin: 18px 0 22px; color: var(--text-secondary);
+  font-family: var(--body-font), sans-serif; font-size: clamp(10px, calc(var(--body-size) * .72), 18px);
+  font-weight: var(--body-weight); line-height: var(--body-line-height); letter-spacing: var(--body-letter-spacing);
+}
 .hero-actions { display: flex; gap: 10px; }
 .secondary-action {
   padding: 10px 15px; border: 1px solid var(--secondary) !important; border-radius: var(--control-radius);
@@ -326,7 +339,11 @@ button { color: inherit; }
 .preview-card > div { color: var(--primary); }
 .preview-card svg { width: 21px; height: 21px; }
 .preview-card h2 { margin: 14px 0 8px; font-size: 14px; letter-spacing: -.02em; }
-.preview-card p { min-height: 38px; margin: 0 0 14px; color: var(--text-secondary); font-size: 10px; line-height: 1.55; }
+.preview-card p {
+  min-height: 38px; margin: 0 0 14px; color: var(--text-secondary);
+  font-family: var(--body-font), sans-serif; font-size: clamp(9px, calc(var(--body-size) * .66), 16px);
+  font-weight: var(--body-weight); line-height: var(--body-line-height); letter-spacing: var(--body-letter-spacing);
+}
 .preview-card a { color: var(--primary); font-size: 10px; }
 .code-block {
   position: relative; margin: 0 max(var(--section-padding), 28px) calc(var(--base-space) * 3);
@@ -345,7 +362,11 @@ button { color: inherit; }
   background: color-mix(in srgb, var(--surface) 72%, var(--background));
 }
 .bottom-feature h2 { margin: 0 0 8px; font-size: 15px; }
-.bottom-feature p { margin: 0; color: var(--text-secondary); font-size: 10px; line-height: 1.55; }
+.bottom-feature p {
+  margin: 0; color: var(--text-secondary); font-family: var(--body-font), sans-serif;
+  font-size: clamp(9px, calc(var(--body-size) * .66), 16px); font-weight: var(--body-weight);
+  line-height: var(--body-line-height); letter-spacing: var(--body-letter-spacing);
+}
 .bottom-feature ul { display: flex; flex-direction: column; gap: 9px; margin: 0; padding: 0; list-style: none; color: var(--text-secondary); font-size: 9px; }
 .bottom-feature li { display: flex; align-items: center; gap: 7px; }
 .bottom-feature li svg { width: 13px; height: 13px; color: var(--primary); }
