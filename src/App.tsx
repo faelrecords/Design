@@ -655,23 +655,22 @@ function writeMarkdownSection(content: string, heading: string, value: string) {
 }
 
 function PreviewSite({ data }: { data: DesignData }) {
-  const title = data.name.replace(/\s*[-/|].*$/, '') || data.name
   return (
     <div className="preview-page">
       <nav className="demo-nav">
-        <div className="demo-logo"><Sparkles size={20} /><span>{title}</span></div>
-        <div className="demo-links"><a>Produto</a><a>Recursos</a><a>Preços</a><a>Documentação</a></div>
-        <button className="ghost-action">Entrar</button>
-        <button className="primary-action">Começar agora</button>
+        <div className="demo-logo"><Sparkles size={20} /><span>Design</span></div>
+        <div className="demo-links"><a>Como funciona</a><a>Tokens</a><a>Preview</a><a>Exportação</a></div>
+        <button className="ghost-action">Importar</button>
+        <button className="primary-action">Novo Design.MD</button>
       </nav>
       <section className="demo-hero">
         <div className="hero-copy">
-          <span className="demo-label">Sistema conectado</span>
-          <h1>Construa sem limites.<em>Escala real.</em></h1>
-          <p>{data.description}</p>
+          <span className="demo-label">Editando: {data.name}</span>
+          <h1>Defina seu sistema.<em>Veja cada mudança.</em></h1>
+          <p>Design transforma arquivos Design.MD em controles visuais. Ajuste cores, tipografia, espaçamento e componentes enquanto acompanha resultado neste preview.</p>
           <div className="hero-actions">
-            <button className="primary-action">Começar gratuitamente</button>
-            <button className="secondary-action">Ver documentação</button>
+            <button className="primary-action">Começar novo arquivo</button>
+            <button className="secondary-action">Importar Design.MD</button>
           </div>
         </div>
         <div className="hero-art" aria-hidden="true">
@@ -684,18 +683,18 @@ function PreviewSite({ data }: { data: DesignData }) {
         </div>
       </section>
       <section className="feature-row">
-        <PreviewCard icon={<Save />} title="Seguro por design" text="Estrutura resiliente, previsível e pronta para produção." />
-        <PreviewCard icon={<Sparkles />} title="Performance global" text="Experiência rápida em qualquer dispositivo ou região." />
-        <PreviewCard icon={<FolderOpen />} title="Sistema escalável" text="Tokens consistentes para produtos que continuam crescendo." />
+        <PreviewCard icon={<Palette />} title="1. Configure tokens" text="Escolha cores, fontes, espaços e raios usando controles visuais." />
+        <PreviewCard icon={<Monitor />} title="2. Acompanhe preview" text="Cada ajuste aparece imediatamente em componentes reais desta página." />
+        <PreviewCard icon={<Download />} title="3. Exporte arquivo" text="Baixe Design.MD pronto para documentar e reutilizar sistema visual." />
       </section>
       <section className="code-block">
-        <div className="code-header"><span><Code2 size={14} /> Instalação</span><div><b>NPM</b><span>Yarn</span><span>PNPM</span></div></div>
-        <code>$ npm install @design/system</code>
+        <div className="code-header"><span><Code2 size={14} /> Estrutura Design.MD</span><div><b>YAML</b><span>Tokens</span><span>Markdown</span></div></div>
+        <code>colors.primary: {data.colors.primary} · rounded.card: {data.rounded.card} · spacing.gap: {data.spacing.gap}</code>
         <button><Copy size={14} /></button>
       </section>
       <section className="bottom-feature">
-        <div><h2>Feito para desenvolvedores</h2><p>Tokens claros, documentação completa e componentes reutilizáveis.</p></div>
-        <ul><li><Check /> Sem dependências ocultas</li><li><Check /> Pronto para produção</li><li><Check /> Exportação direta</li></ul>
+        <div><h2>Seu trabalho fica neste navegador</h2><p>Projetos são salvos localmente. Nenhum arquivo ou configuração precisa sair do dispositivo.</p></div>
+        <ul><li><Check /> Criação sem cadastro</li><li><Check /> Importação e exportação Markdown</li><li><Check /> Preview responsivo em tempo real</li></ul>
       </section>
     </div>
   )
