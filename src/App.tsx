@@ -121,16 +121,20 @@ function App() {
 
   useEffect(() => {
     const families = Array.from(new Set(data.googleFonts || []))
-    const id = 'design-google-fonts'
-    document.getElementById(id)?.remove()
+    document.querySelectorAll('[data-design-google-font]').forEach((element) => element.remove())
     if (!families.length) return
-    const link = document.createElement('link')
-    link.id = id
-    link.rel = 'stylesheet'
-    link.href = `https://fonts.googleapis.com/css2?${families
-      .map((family) => `family=${encodeURIComponent(family).replace(/%20/g, '+')}`)
-      .join('&')}&display=swap`
-    document.head.appendChild(link)
+    families.forEach((family) => {
+      const encoded = encodeURIComponent(family).replace(/%20/g, '+')
+      const link = document.createElement('link')
+      link.dataset.designGoogleFont = family
+      link.rel = 'stylesheet'
+      link.href = `https://fonts.googleapis.com/css2?family=${encoded}:wght@100..900&display=swap`
+      link.onerror = () => {
+        link.onerror = null
+        link.href = `https://fonts.googleapis.com/css2?family=${encoded}&display=swap`
+      }
+      document.head.appendChild(link)
+    })
   }, [data.googleFonts])
 
   function updateData(updater: (current: DesignData) => DesignData) {

@@ -4,7 +4,7 @@
   font-family: Inter, system-ui, sans-serif;
   color: #edf3ef;
   background: #070908;
-  font-synthesis: none;
+  font-synthesis: weight style;
   --chrome: #0d100f;
   --panel: #111513;
   --panel-2: #151a18;
