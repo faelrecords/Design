@@ -359,20 +359,35 @@ function FormEditor({
         {Object.entries(data.typography).map(([key, style]) => (
           <TokenGroup key={key} title={key}>
             {(Object.keys(style) as Array<keyof TypeStyle>).map((property) => (
-              <Field
-                key={property}
-                label={property}
-                value={String(style[property] ?? '')}
-                onChange={(value) =>
-                  setField('typography', {
-                    ...data.typography,
-                    [key]: {
-                      ...style,
-                      [property]: property === 'fontWeight' ? Number(value) : value,
-                    },
-                  })
-                }
-              />
+              property === 'fontFamily' ? (
+                <Field
+                  key={property}
+                  label={property}
+                  value={String(style[property] ?? '')}
+                  onChange={(value) =>
+                    setField('typography', {
+                      ...data.typography,
+                      [key]: { ...style, [property]: value },
+                    })
+                  }
+                />
+              ) : (
+                <NumericControl
+                  key={property}
+                  label={property}
+                  value={String(style[property] ?? '')}
+                  config={numericConfigFor(property)}
+                  onChange={(value) =>
+                    setField('typography', {
+                      ...data.typography,
+                      [key]: {
+                        ...style,
+                        [property]: property === 'fontWeight' ? Number(value) : value,
+                      },
+                    })
+                  }
+                />
+              )
             ))}
           </TokenGroup>
         ))}
@@ -385,7 +400,13 @@ function FormEditor({
     return (
       <EditorSection title="Espaçamento" description="Escala compartilhada entre componentes.">
         {Object.entries(values).map(([key, value]) => (
-          <Field key={key} label={key} value={value} onChange={(next) => setField(section, { ...values, [key]: next })} />
+          <NumericControl
+            key={key}
+            label={key}
+            value={value}
+            config={{ min: 0, max: key === 'section-padding' ? 240 : 120, step: 1, defaultUnit: 'px' }}
+            onChange={(next) => setField(section, { ...values, [key]: next })}
+          />
         ))}
       </EditorSection>
     )
@@ -556,6 +577,74 @@ function RadiusControl({
       </div>
     </div>
   )
+}
+
+type NumericConfig = {
+  min: number
+  max: number
+  step: number
+  defaultUnit: string
+}
+
+function numericConfigFor(property: keyof TypeStyle): NumericConfig {
+  if (property === 'fontSize') return { min: 8, max: 144, step: 1, defaultUnit: 'px' }
+  if (property === 'fontWeight') return { min: 100, max: 900, step: 100, defaultUnit: '' }
+  if (property === 'lineHeight') return { min: 0.8, max: 3, step: 0.01, defaultUnit: '' }
+  return { min: -0.2, max: 0.5, step: 0.01, defaultUnit: 'em' }
+}
+
+function NumericControl({
+  label,
+  value,
+  config,
+  onChange,
+}: {
+  label: string
+  value: string
+  config: NumericConfig
+  onChange: (value: string) => void
+}) {
+  const parsed = parseNumericToken(value, config.defaultUnit)
+  const precision = String(config.step).includes('.') ? String(config.step).split('.')[1].length : 0
+  const update = (next: number) => {
+    const clamped = Math.min(config.max, Math.max(config.min, next))
+    const rounded = Number(clamped.toFixed(precision))
+    onChange(`${rounded}${parsed.unit}`)
+  }
+  return (
+    <div className="numeric-control">
+      <span>{label}</span>
+      <input
+        aria-label={`${label} slider`}
+        type="range"
+        min={config.min}
+        max={config.max}
+        step={config.step}
+        value={Math.min(config.max, Math.max(config.min, parsed.number))}
+        onChange={(event) => update(Number(event.target.value))}
+      />
+      <div className="number-stepper">
+        <button aria-label={`Diminuir ${label}`} onClick={() => update(parsed.number - config.step)}><Minus size={13} /></button>
+        <input
+          aria-label={`${label} valor`}
+          type="number"
+          min={config.min}
+          max={config.max}
+          step={config.step}
+          value={parsed.number}
+          onChange={(event) => update(Number(event.target.value))}
+        />
+        <span>{parsed.unit || '—'}</span>
+        <button aria-label={`Aumentar ${label}`} onClick={() => update(parsed.number + config.step)}><Plus size={13} /></button>
+      </div>
+    </div>
+  )
+}
+
+function parseNumericToken(value: string, defaultUnit: string) {
+  const number = Number.parseFloat(value)
+  const unit = value.trim().match(/[a-z%]+$/i)?.[0] ?? defaultUnit
+  return { number: Number.isFinite(number) ? number : 0, unit }
 }
 
 function readMarkdownSection(content: string, heading: string) {

@@ -135,6 +135,18 @@ button { color: inherit; }
 .color-row small { overflow: hidden; color: #77817c; text-overflow: ellipsis; }
 .token-group { margin-bottom: 15px; padding: 13px; border: 1px solid var(--line); border-radius: 8px; background: #131816; }
 .token-group h3 { margin: 0 0 12px; color: var(--green); font: 600 10px 'Geist Mono', monospace; text-transform: uppercase; }
+.numeric-control {
+  display: grid; grid-template-columns: 105px minmax(72px, 1fr) 116px; align-items: center; gap: 10px; margin-bottom: 10px;
+  color: #c9d0cc; font-size: 10px;
+}
+.numeric-control > input[type='range'] {
+  width: 100%; height: 4px; appearance: none; border-radius: 999px;
+  background: linear-gradient(90deg, var(--green), #25302a); accent-color: var(--green); cursor: pointer;
+}
+.numeric-control > input[type='range']::-webkit-slider-thumb {
+  width: 14px; height: 14px; appearance: none; border: 2px solid #0c100e; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 0 1px #4a5a52;
+}
 .radius-list { display: flex; flex-direction: column; gap: 10px; }
 .radius-control {
   display: grid; grid-template-columns: 105px minmax(72px, 1fr) 116px; align-items: center; gap: 10px;
@@ -321,6 +333,8 @@ button { color: inherit; }
   .bottom-feature { grid-template-columns: 1fr; }
   .radius-control { grid-template-columns: 1fr 130px; }
   .radius-control input[type='range'] { grid-column: 1 / -1; grid-row: 2; }
+  .numeric-control { grid-template-columns: 1fr 116px; }
+  .numeric-control > input[type='range'] { grid-column: 1 / -1; grid-row: 2; }
   .guided-field { grid-template-columns: 1fr; }
 }
 
