@@ -2,13 +2,11 @@ import {
   Braces,
   Check,
   ChevronDown,
-  CircleHelp,
   Code2,
   Copy,
   Download,
   FilePlus2,
   FolderOpen,
-  Github,
   Grid2X2,
   Laptop,
   LayoutTemplate,
@@ -291,8 +289,6 @@ function App() {
                 <NavButton icon={<Grid2X2 />} label="Espaçamento" active={section === 'spacing'} onClick={() => setSection('spacing')} />
                 <NavButton icon={<Maximize2 />} label="Raio" active={section === 'rounded'} onClick={() => setSection('rounded')} />
                 <NavButton icon={<Code2 />} label="Conteúdo" active={section === 'content'} onClick={() => setSection('content')} />
-                <div className="nav-spacer" />
-                <NavButton icon={<CircleHelp />} label="Sobre" onClick={() => setSection('about')} />
               </nav>
 
               <div className="editor-content">
@@ -346,14 +342,6 @@ function App() {
         </section>
       </section>
 
-      <footer className="statusbar">
-        <div><span className="status-dot" /> Salvo automaticamente no navegador</div>
-        <div className="status-tag">LocalStorage</div>
-        <div className="status-spacer" />
-        <div><Check size={14} /> Design.MD válido</div>
-        <div>Versão {data.version}</div>
-        <div>{serializeDesign(data).split('\n').length} linhas</div>
-      </footer>
       {fontTarget ? (
         <FontPicker
           search={fontSearch}
@@ -547,20 +535,6 @@ function FormEditor({
               }}
             />
           </label>
-        </div>
-      </EditorSection>
-    )
-  }
-
-  if (section === 'about') {
-    return (
-      <EditorSection title="Sobre Design" description="Editor visual para Design.MD.">
-        <div className="about-block">
-          <Sparkles size={24} />
-          <h3>Design</h3>
-          <p>Crie, importe, edite e exporte sistemas visuais em Design.MD.</p>
-          <p>Dados ficam somente neste navegador.</p>
-          <a href="https://github.com/faelrecords/Design" target="_blank" rel="noreferrer"><Github size={15} /> Abrir GitHub</a>
         </div>
       </EditorSection>
     )
