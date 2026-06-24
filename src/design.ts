@@ -15,6 +15,7 @@ export type DesignData = {
   description: string
   colors: TokenMap
   typography: Record<string, TypeStyle>
+  googleFonts: string[]
   spacing: TokenMap
   rounded: TokenMap
   components: Record<string, TokenMap>
@@ -56,6 +57,7 @@ export const emptyDesign: DesignData = {
       lineHeight: '1.2',
     },
   },
+  googleFonts: ['Inter', 'JetBrains Mono'],
   spacing: {
     base: '8px',
     gap: '16px',
@@ -104,6 +106,9 @@ function normalize(data: Partial<DesignData>): DesignData {
     ...data,
     colors: { ...emptyDesign.colors, ...(data.colors || {}) },
     typography: { ...emptyDesign.typography, ...(data.typography || {}) },
+    googleFonts: data.googleFonts || Array.from(new Set(
+      Object.values(data.typography || emptyDesign.typography).map((style) => style.fontFamily),
+    )),
     spacing: { ...emptyDesign.spacing, ...(data.spacing || {}) },
     rounded: { ...emptyDesign.rounded, ...(data.rounded || {}) },
     components: { ...emptyDesign.components, ...(data.components || {}) },

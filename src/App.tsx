@@ -33,6 +33,15 @@ import { examples, type StoredDesign } from './examples'
 
 const STORAGE_KEY = 'design-md-editor-v1'
 const LAST_KEY = 'design-md-editor-last'
+const GOOGLE_FONTS = [
+  'Archivo', 'Bebas Neue', 'Bitter', 'Bricolage Grotesque', 'Cabin', 'Cormorant Garamond',
+  'DM Sans', 'DM Serif Display', 'Figtree', 'Geist', 'IBM Plex Mono', 'IBM Plex Sans',
+  'Inconsolata', 'Inter', 'JetBrains Mono', 'Josefin Sans', 'Karla', 'Lato', 'Libre Baskerville',
+  'Manrope', 'Merriweather', 'Montserrat', 'Noto Sans', 'Nunito', 'Open Sans', 'Oswald',
+  'Outfit', 'Playfair Display', 'Plus Jakarta Sans', 'Poppins', 'PT Sans', 'Raleway',
+  'Roboto', 'Roboto Mono', 'Rubik', 'Source Code Pro', 'Source Sans 3', 'Space Grotesk',
+  'Syne', 'Work Sans',
+]
 
 const colorLabels: Record<string, string> = {
   primary: 'Primária',
@@ -87,6 +96,8 @@ function App() {
   const [raw, setRaw] = useState('')
   const [rawError, setRawError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [fontTarget, setFontTarget] = useState<string | null>(null)
+  const [fontSearch, setFontSearch] = useState('')
   const fileInput = useRef<HTMLInputElement>(null)
 
   const active = documents.find((doc) => doc.id === activeId) || documents[0]
@@ -94,10 +105,14 @@ function App() {
 
   useEffect(() => {
     if (!active) return
+    localStorage.setItem(LAST_KEY, active.id)
+  }, [activeId, active])
+
+  useEffect(() => {
+    if (!active) return
     setRaw(serializeDesign(active.data))
     setRawError('')
-    localStorage.setItem(LAST_KEY, active.id)
-  }, [activeId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -105,6 +120,20 @@ function App() {
     }, 250)
     return () => clearTimeout(timer)
   }, [documents])
+
+  useEffect(() => {
+    const families = Array.from(new Set(data.googleFonts || []))
+    const id = 'design-google-fonts'
+    document.getElementById(id)?.remove()
+    if (!families.length) return
+    const link = document.createElement('link')
+    link.id = id
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?${families
+      .map((family) => `family=${encodeURIComponent(family).replace(/%20/g, '+')}`)
+      .join('&')}&display=swap`
+    document.head.appendChild(link)
+  }, [data.googleFonts])
 
   function updateData(updater: (current: DesignData) => DesignData) {
     setDocuments((current) =>
@@ -273,7 +302,7 @@ function App() {
                     {rawError && <div className="error-message">{rawError}</div>}
                   </div>
                 ) : (
-                  <FormEditor data={data} section={section} setField={setField} />
+                  <FormEditor data={data} section={section} setField={setField} onChooseFont={setFontTarget} />
                 )}
               </div>
             </div>
@@ -312,6 +341,23 @@ function App() {
         <div>Versão {data.version}</div>
         <div>{serializeDesign(data).split('\n').length} linhas</div>
       </footer>
+      {fontTarget ? (
+        <FontPicker
+          search={fontSearch}
+          setSearch={setFontSearch}
+          selected={data.typography[fontTarget]?.fontFamily || ''}
+          onClose={() => { setFontTarget(null); setFontSearch('') }}
+          onSelect={(family) => {
+            setField('typography', {
+              ...data.typography,
+              [fontTarget]: { ...data.typography[fontTarget], fontFamily: family },
+            })
+            setField('googleFonts', Array.from(new Set([...(data.googleFonts || []), family])))
+            setFontTarget(null)
+            setFontSearch('')
+          }}
+        />
+      ) : null}
     </main>
   )
 }
@@ -324,10 +370,12 @@ function FormEditor({
   data,
   section,
   setField,
+  onChooseFont,
 }: {
   data: DesignData
   section: string
   setField: <K extends keyof DesignData>(key: K, value: DesignData[K]) => void
+  onChooseFont: (target: string) => void
 }) {
   if (section === 'colors') {
     return (
@@ -353,17 +401,13 @@ function FormEditor({
           <TokenGroup key={key} title={key}>
             {(Object.keys(style) as Array<keyof TypeStyle>).map((property) => (
               property === 'fontFamily' ? (
-                <Field
-                  key={property}
-                  label={property}
-                  value={String(style[property] ?? '')}
-                  onChange={(value) =>
-                    setField('typography', {
-                      ...data.typography,
-                      [key]: { ...style, [property]: value },
-                    })
-                  }
-                />
+                <div className="font-family-field" key={property}>
+                  <span>fontFamily</span>
+                  <button onClick={() => onChooseFont(key)}>
+                    <b style={{ fontFamily: `"${style.fontFamily}", sans-serif` }}>{style.fontFamily}</b>
+                    <small>Google Fonts</small>
+                  </button>
+                </div>
               ) : (
                 <NumericControl
                   key={property}
@@ -503,6 +547,60 @@ function FormEditor({
         <button><Braces size={17} /><span><b>{Object.keys(data.components).length}</b> componentes</span></button>
       </div>
     </EditorSection>
+  )
+}
+
+function FontPicker({
+  search,
+  setSearch,
+  selected,
+  onClose,
+  onSelect,
+}: {
+  search: string
+  setSearch: (value: string) => void
+  selected: string
+  onClose: () => void
+  onSelect: (family: string) => void
+}) {
+  const fonts = GOOGLE_FONTS.filter((font) => font.toLowerCase().includes(search.toLowerCase()))
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.id = 'design-font-picker-fonts'
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?${GOOGLE_FONTS
+      .map((family) => `family=${encodeURIComponent(family).replace(/%20/g, '+')}`)
+      .join('&')}&display=swap&text=AaDesign.MD`
+    document.head.appendChild(link)
+    return () => link.remove()
+  }, [])
+  return (
+    <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section className="font-modal" role="dialog" aria-modal="true" aria-label="Escolher fonte Google Fonts">
+        <header>
+          <div><Type size={18} /><span><b>Google Fonts</b><small>Escolha fonte para Design.MD</small></span></div>
+          <button onClick={onClose}>×</button>
+        </header>
+        <div className="font-search">
+          <input autoFocus placeholder="Buscar fonte..." value={search} onChange={(event) => setSearch(event.target.value)} />
+          <span>{fonts.length} fontes</span>
+        </div>
+        <div className="font-grid">
+          {fonts.map((font) => (
+            <button
+              key={font}
+              className={font === selected ? 'selected' : ''}
+              style={{ fontFamily: `"${font}", sans-serif` }}
+              onClick={() => onSelect(font)}
+            >
+              <span>Aa</span>
+              <b>{font}</b>
+              <small>Design.MD</small>
+            </button>
+          ))}
+        </div>
+      </section>
+    </div>
   )
 }
 
