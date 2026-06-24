@@ -18,6 +18,10 @@ export type DesignData = {
   googleFonts: string[]
   spacing: TokenMap
   rounded: TokenMap
+  states: TokenMap
+  shadows: TokenMap
+  layout: TokenMap
+  icons: TokenMap
   components: Record<string, TokenMap>
   content: string
 }
@@ -65,6 +69,28 @@ export const emptyDesign: DesignData = {
     'section-padding': '80px',
   },
   rounded: { card: '16px', control: '10px', pill: '9999px' },
+  states: {
+    hover: '#38CC7A',
+    focus: '#45E58B',
+    'focus-ring': '3px',
+    'disabled-opacity': '0.45',
+  },
+  shadows: {
+    sm: '0 2px 8px rgba(0, 0, 0, 0.18)',
+    md: '0 12px 32px rgba(0, 0, 0, 0.28)',
+    lg: '0 24px 64px rgba(0, 0, 0, 0.38)',
+  },
+  layout: {
+    'max-width': '1200px',
+    'content-width': '720px',
+    'breakpoint-mobile': '480px',
+    'breakpoint-tablet': '768px',
+    'breakpoint-desktop': '1024px',
+  },
+  icons: {
+    size: '20px',
+    'stroke-width': '2',
+  },
   components: {
     card: {
       background: 'Use o token surface com borda sutil',
@@ -100,7 +126,7 @@ Botões e cards devem compartilhar linguagem visual.
 - Mantenha raios e bordas consistentes.`,
 }
 
-function normalize(data: Partial<DesignData>): DesignData {
+export function normalizeDesign(data: Partial<DesignData>): DesignData {
   return {
     ...structuredClone(emptyDesign),
     ...data,
@@ -111,6 +137,10 @@ function normalize(data: Partial<DesignData>): DesignData {
     )),
     spacing: { ...emptyDesign.spacing, ...(data.spacing || {}) },
     rounded: { ...emptyDesign.rounded, ...(data.rounded || {}) },
+    states: { ...emptyDesign.states, ...(data.states || {}) },
+    shadows: { ...emptyDesign.shadows, ...(data.shadows || {}) },
+    layout: { ...emptyDesign.layout, ...(data.layout || {}) },
+    icons: { ...emptyDesign.icons, ...(data.icons || {}) },
     components: { ...emptyDesign.components, ...(data.components || {}) },
     content: data.content || `# ${data.name || emptyDesign.name}`,
   }
@@ -120,7 +150,7 @@ export function parseDesign(raw: string): DesignData {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
   if (!match) throw new Error('Frontmatter YAML não encontrado.')
   const frontmatter = (yaml.load(match[1]) || {}) as Partial<DesignData>
-  return normalize({ ...frontmatter, content: match[2].trim() })
+  return normalizeDesign({ ...frontmatter, content: match[2].trim() })
 }
 
 export function serializeDesign(data: DesignData): string {

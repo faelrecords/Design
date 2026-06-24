@@ -1,5 +1,6 @@
 import {
   Braces,
+  BoxSelect,
   Check,
   ChevronDown,
   Code2,
@@ -9,16 +10,19 @@ import {
   FolderOpen,
   Grid2X2,
   Laptop,
+  Layers3,
   LayoutTemplate,
   Maximize2,
   Minus,
   Monitor,
+  MousePointer2,
   Palette,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
   RotateCcw,
   Save,
+  SlidersHorizontal,
   Smartphone,
   Sparkles,
   Tablet,
@@ -26,7 +30,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { emptyDesign, parseDesign, serializeDesign, slugify, type DesignData, type TypeStyle } from './design'
+import { emptyDesign, normalizeDesign, parseDesign, serializeDesign, slugify, type DesignData, type TypeStyle } from './design'
 import { examples, type StoredDesign } from './examples'
 
 const STORAGE_KEY = 'design-md-editor-v1'
@@ -60,7 +64,9 @@ function loadStored(): StoredDesign[] {
   try {
     const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
     if (!Array.isArray(value)) return []
-    return value.filter((item) => item?.id && item?.data?.name && item?.data?.colors)
+    return value
+      .filter((item) => item?.id && item?.data?.name && item?.data?.colors)
+      .map((item) => ({ ...item, data: normalizeDesign(item.data) }))
   } catch {
     localStorage.removeItem(STORAGE_KEY)
     return []
@@ -212,6 +218,17 @@ function App() {
         '--base-space': data.spacing.base,
         '--card-padding': data.spacing['card-padding'],
         '--section-padding': data.spacing['section-padding'],
+        '--state-hover': data.states.hover,
+        '--state-focus': data.states.focus,
+        '--focus-ring': data.states['focus-ring'],
+        '--disabled-opacity': data.states['disabled-opacity'],
+        '--shadow-sm': data.shadows.sm,
+        '--shadow-md': data.shadows.md,
+        '--shadow-lg': data.shadows.lg,
+        '--layout-max': data.layout['max-width'],
+        '--content-width': data.layout['content-width'],
+        '--icon-size': data.icons.size,
+        '--icon-stroke': data.icons['stroke-width'],
         '--display-font': data.typography['display-lg']?.fontFamily || 'Inter',
         '--display-size': data.typography['display-lg']?.fontSize || '64px',
         '--display-weight': data.typography['display-lg']?.fontWeight || 600,
@@ -292,6 +309,10 @@ function App() {
                 <NavButton icon={<Type />} label="Tipografia" active={section === 'type'} onClick={() => setSection('type')} />
                 <NavButton icon={<Grid2X2 />} label="Espaçamento" active={section === 'spacing'} onClick={() => setSection('spacing')} />
                 <NavButton icon={<Maximize2 />} label="Raio" active={section === 'rounded'} onClick={() => setSection('rounded')} />
+                <NavButton icon={<MousePointer2 />} label="Estados" active={section === 'states'} onClick={() => setSection('states')} />
+                <NavButton icon={<Layers3 />} label="Sombras" active={section === 'shadows'} onClick={() => setSection('shadows')} />
+                <NavButton icon={<SlidersHorizontal />} label="Layout" active={section === 'layout'} onClick={() => setSection('layout')} />
+                <NavButton icon={<BoxSelect />} label="Ícones" active={section === 'icons'} onClick={() => setSection('icons')} />
                 <NavButton icon={<Code2 />} label="Conteúdo" active={section === 'content'} onClick={() => setSection('content')} />
               </nav>
 
@@ -496,6 +517,92 @@ function FormEditor({
               onChange={(value) => setField('rounded', { ...data.rounded, [item.key]: `${value}px` })}
             />
           ))}
+        </div>
+      </EditorSection>
+    )
+  }
+
+  if (section === 'states') {
+    return (
+      <EditorSection title="Estados" description="Feedback visual para interação e acessibilidade.">
+        <div className="color-list">
+          {(['hover', 'focus'] as const).map((key) => (
+            <label className="color-row" key={key}>
+              <input type="color" value={data.states[key]} onChange={(event) => setField('states', { ...data.states, [key]: event.target.value.toUpperCase() })} />
+              <span>{key === 'hover' ? 'Hover' : 'Focus'}</span>
+              <input value={data.states[key]} onChange={(event) => setField('states', { ...data.states, [key]: event.target.value })} />
+              <small>{key}</small>
+            </label>
+          ))}
+        </div>
+        <NumericControl
+          label="focus-ring"
+          value={data.states['focus-ring']}
+          config={{ min: 0, max: 12, step: 1, defaultUnit: 'px' }}
+          onChange={(value) => setField('states', { ...data.states, 'focus-ring': value })}
+        />
+        <NumericControl
+          label="disabled-opacity"
+          value={data.states['disabled-opacity']}
+          config={{ min: 0.1, max: 1, step: 0.05, defaultUnit: '' }}
+          onChange={(value) => setField('states', { ...data.states, 'disabled-opacity': value })}
+        />
+      </EditorSection>
+    )
+  }
+
+  if (section === 'shadows') {
+    return (
+      <EditorSection title="Sombras" description="Escala de profundidade para superfícies.">
+        {Object.entries(data.shadows).map(([key, value]) => (
+          <label className="shadow-field" key={key}>
+            <span className="shadow-sample" style={{ boxShadow: value }} />
+            <b>{key}</b>
+            <input value={value} onChange={(event) => setField('shadows', { ...data.shadows, [key]: event.target.value })} />
+          </label>
+        ))}
+      </EditorSection>
+    )
+  }
+
+  if (section === 'layout') {
+    return (
+      <EditorSection title="Larguras e breakpoints" description="Limites responsivos do sistema.">
+        {Object.entries(data.layout).map(([key, value]) => (
+          <NumericControl
+            key={key}
+            label={key}
+            value={value}
+            config={{ min: 240, max: key === 'content-width' ? 1400 : 1920, step: 8, defaultUnit: 'px' }}
+            onChange={(next) => setField('layout', { ...data.layout, [key]: next })}
+          />
+        ))}
+        <div className="breakpoint-map">
+          <span style={{ width: `${Math.min(100, (parseInt(data.layout['breakpoint-mobile']) / 1920) * 100)}%` }}>Mobile</span>
+          <span style={{ width: `${Math.min(100, (parseInt(data.layout['breakpoint-tablet']) / 1920) * 100)}%` }}>Tablet</span>
+          <span style={{ width: `${Math.min(100, (parseInt(data.layout['breakpoint-desktop']) / 1920) * 100)}%` }}>Desktop</span>
+        </div>
+      </EditorSection>
+    )
+  }
+
+  if (section === 'icons') {
+    return (
+      <EditorSection title="Ícones" description="Tamanho e espessura compartilhados.">
+        <NumericControl
+          label="size"
+          value={data.icons.size}
+          config={{ min: 12, max: 64, step: 1, defaultUnit: 'px' }}
+          onChange={(value) => setField('icons', { ...data.icons, size: value })}
+        />
+        <NumericControl
+          label="stroke-width"
+          value={data.icons['stroke-width']}
+          config={{ min: 0.5, max: 4, step: 0.25, defaultUnit: '' }}
+          onChange={(value) => setField('icons', { ...data.icons, 'stroke-width': value })}
+        />
+        <div className="icon-preview" style={{ '--icon-size': data.icons.size, '--icon-stroke': data.icons['stroke-width'] } as React.CSSProperties}>
+          <Save /><Palette /><Download /><Sparkles />
         </div>
       </EditorSection>
     )
@@ -820,6 +927,25 @@ function PreviewSite({ data }: { data: DesignData }) {
         <div className="code-header"><span><Code2 size={14} /> Estrutura Design.MD</span><div><b>YAML</b><span>Tokens</span><span>Markdown</span></div></div>
         <code>colors.primary: {data.colors.primary} · rounded.card: {data.rounded.card} · spacing.gap: {data.spacing.gap}</code>
         <button><Copy size={14} /></button>
+      </section>
+      <section className="form-preview">
+        <div className="form-intro">
+          <span className="demo-label">Preview de formulário</span>
+          <h2>Componentes em contexto</h2>
+          <p>Confira campos, estados, sombras e ícones usando mesmos tokens do arquivo.</p>
+          <div className="state-preview">
+            <button className="primary-action">Normal</button>
+            <button className="primary-action forced-hover">Hover</button>
+            <button className="primary-action forced-focus">Focus</button>
+            <button className="primary-action" disabled>Disabled</button>
+          </div>
+        </div>
+        <form className="demo-form" onSubmit={(event) => event.preventDefault()}>
+          <label><span>Nome do projeto</span><input placeholder="Meu Design System" /></label>
+          <label><span>Categoria</span><select defaultValue=""><option value="" disabled>Selecione</option><option>Produto digital</option><option>Aplicativo</option><option>Website</option></select></label>
+          <label className="demo-check"><input type="checkbox" defaultChecked /><span>Salvar configurações localmente</span></label>
+          <button className="primary-action">Criar Design.MD</button>
+        </form>
       </section>
       <section className="bottom-feature">
         <div><h2>Seu trabalho fica neste navegador</h2><p>Projetos são salvos localmente. Nenhum arquivo ou configuração precisa sair do dispositivo.</p></div>
