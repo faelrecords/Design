@@ -49,15 +49,13 @@ button { color: inherit; }
 }
 .document-switcher svg { position: absolute; right: 11px; top: 10px; pointer-events: none; color: var(--muted); }
 .top-actions { display: flex; gap: 7px; }
-.top-actions button, .theme-button, .icon-link {
+.top-actions button {
   height: 36px; display: flex; align-items: center; justify-content: center; gap: 7px;
   border: 1px solid var(--line); border-radius: 9px; padding: 0 12px; background: #151918;
   color: #dfe6e2; font-size: 12px; cursor: pointer; text-decoration: none; transition: .18s ease;
 }
-.top-actions button:hover, .theme-button:hover, .icon-link:hover { border-color: #3a443f; background: #1b211e; }
+.top-actions button:hover { border-color: #3a443f; background: #1b211e; }
 .topbar-spacer { flex: 1; }
-.icon-link { width: 36px; padding: 0; }
-.theme-button { flex-direction: row-reverse; }
 .save-state { display: flex; align-items: center; gap: 6px; color: #aeb8b3; font-size: 12px; padding: 0 8px; }
 .save-state svg { color: var(--green); }
 
@@ -346,7 +344,7 @@ button { color: inherit; }
   .document-switcher { order: 3; width: 100%; }
   .top-actions { order: 4; width: 100%; }
   .top-actions button { flex: 1; }
-  .theme-button, .save-state, .icon-link { display: none; }
+  .save-state { display: none; }
   .workspace, .workspace.editor-collapsed { display: flex; flex-direction: column; min-height: 1200px; }
   .editor-panel { min-height: 650px; }
   .preview-panel { min-height: 760px; }

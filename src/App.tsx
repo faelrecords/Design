@@ -15,7 +15,6 @@ import {
   Maximize2,
   Minus,
   Monitor,
-  Moon,
   Palette,
   PanelLeftClose,
   PanelLeftOpen,
@@ -224,12 +223,6 @@ function App() {
           />
         </div>
         <div className="topbar-spacer" />
-        <a className="icon-link" href="https://github.com/faelrecords/Design" target="_blank" rel="noreferrer">
-          <Github size={17} />
-        </a>
-        <button className="theme-button" aria-label="Tema escuro">
-          <Moon size={15} /> <span>Tema</span>
-        </button>
         <div className="save-state">
           <Check size={15} />
           <span>Salvo</span>
