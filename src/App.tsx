@@ -207,7 +207,9 @@ function App() {
         '--control-radius': data.rounded.control,
         '--pill-radius': data.rounded.pill,
         '--base-gap': data.spacing.gap,
+        '--base-space': data.spacing.base,
         '--card-padding': data.spacing['card-padding'],
+        '--section-padding': data.spacing['section-padding'],
         '--display-font': data.typography['display-lg']?.fontFamily || 'Inter',
         '--display-size': data.typography['display-lg']?.fontSize || '64px',
         '--display-weight': data.typography['display-lg']?.fontWeight || 600,
@@ -276,7 +278,7 @@ function App() {
                 <NavButton icon={<Palette />} label="Cores" active={section === 'colors'} onClick={() => setSection('colors')} />
                 <NavButton icon={<Type />} label="Tipografia" active={section === 'type'} onClick={() => setSection('type')} />
                 <NavButton icon={<Grid2X2 />} label="Espaçamento" active={section === 'spacing'} onClick={() => setSection('spacing')} />
-                <NavButton icon={<Maximize2 />} label="Componentes e raios" active={section === 'rounded'} onClick={() => setSection('rounded')} />
+                <NavButton icon={<Maximize2 />} label="Raio" active={section === 'rounded'} onClick={() => setSection('rounded')} />
                 <NavButton icon={<Code2 />} label="Conteúdo" active={section === 'content'} onClick={() => setSection('content')} />
                 <div className="nav-spacer" />
                 <NavButton icon={<CircleHelp />} label="Sobre" onClick={() => setSection('about')} />
@@ -456,7 +458,7 @@ function FormEditor({
       { key: 'pill', label: 'Pílulas', help: 'Badges e botões totalmente arredondados.', max: 100 },
     ]
     return (
-      <EditorSection title="Componentes e raios" description="Controle visual direto para cantos arredondados.">
+      <EditorSection title="Raio" description="Controle visual direto para cantos arredondados.">
         <div className="radius-list">
           {radiusConfig.map((item) => (
             <RadiusControl
@@ -468,11 +470,6 @@ function FormEditor({
               onChange={(value) => setField('rounded', { ...data.rounded, [item.key]: `${value}px` })}
             />
           ))}
-        </div>
-        <div className="radius-preview-grid">
-          <div style={{ borderRadius: data.rounded.card }}><span>Card</span><small>Usa raio Cards</small></div>
-          <button style={{ borderRadius: data.rounded.control }}>Botão</button>
-          <span style={{ borderRadius: data.rounded.pill }}>Badge</span>
         </div>
       </EditorSection>
     )
