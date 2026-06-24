@@ -6,8 +6,12 @@
     <meta name="theme-color" content="#090b0a" />
     <meta name="description" content="Editor visual para arquivos Design.MD" />
     <title>Design — Design.MD Editor</title>
+    <style>
+      #boot-fallback{position:fixed;inset:0;display:grid;place-items:center;background:#080a09;color:#dfe6e2;font:14px system-ui}
+    </style>
   </head>
   <body>
+    <div id="boot-fallback">Carregando Design…</div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

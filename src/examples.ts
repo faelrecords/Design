@@ -7,10 +7,16 @@ const rawFiles = import.meta.glob('../*-DESIGN.md', {
 }) as Record<string, string>
 
 export const examples = Object.entries(rawFiles)
-  .map(([path, raw]) => ({
-    id: path.split('/').pop() || path,
-    data: parseDesign(raw),
-  }))
+  .flatMap(([path, raw]) => {
+    try {
+      return [{
+        id: path.split('/').pop() || path,
+        data: parseDesign(raw),
+      }]
+    } catch {
+      return []
+    }
+  })
   .sort((a, b) => a.data.name.localeCompare(b.data.name))
 
 export type StoredDesign = {

@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import './styles.css'
 
+document.getElementById('boot-fallback')?.remove()
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

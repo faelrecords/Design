@@ -50,8 +50,11 @@ function uid() {
 
 function loadStored(): StoredDesign[] {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+    const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+    if (!Array.isArray(value)) return []
+    return value.filter((item) => item?.id && item?.data?.name && item?.data?.colors)
   } catch {
+    localStorage.removeItem(STORAGE_KEY)
     return []
   }
 }
@@ -72,7 +75,10 @@ function App() {
     if (stored.length) return stored
     return examples.map(({ id, data }) => ({ id, data, updatedAt: Date.now() }))
   })
-  const [activeId, setActiveId] = useState(() => localStorage.getItem(LAST_KEY) || documents[0]?.id)
+  const [activeId, setActiveId] = useState(() => {
+    const last = localStorage.getItem(LAST_KEY)
+    return documents.some((doc) => doc.id === last) ? last! : documents[0]?.id
+  })
   const [mode, setMode] = useState<'form' | 'markdown'>('form')
   const [section, setSection] = useState('info')
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
