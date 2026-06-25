@@ -556,11 +556,12 @@ function FormEditor({
     return (
       <EditorSection title="Sombras" description="Escala de profundidade para superfícies.">
         {Object.entries(data.shadows).map(([key, value]) => (
-          <label className="shadow-field" key={key}>
-            <span className="shadow-sample" style={{ boxShadow: value }} />
-            <b>{key}</b>
-            <input value={value} onChange={(event) => setField('shadows', { ...data.shadows, [key]: event.target.value })} />
-          </label>
+          <ShadowControl
+            key={key}
+            label={key}
+            value={value}
+            onChange={(next) => setField('shadows', { ...data.shadows, [key]: next })}
+          />
         ))}
       </EditorSection>
     )
@@ -578,11 +579,6 @@ function FormEditor({
             onChange={(next) => setField('layout', { ...data.layout, [key]: next })}
           />
         ))}
-        <div className="breakpoint-map">
-          <span style={{ width: `${Math.min(100, (parseInt(data.layout['breakpoint-mobile']) / 1920) * 100)}%` }}>Mobile</span>
-          <span style={{ width: `${Math.min(100, (parseInt(data.layout['breakpoint-tablet']) / 1920) * 100)}%` }}>Tablet</span>
-          <span style={{ width: `${Math.min(100, (parseInt(data.layout['breakpoint-desktop']) / 1920) * 100)}%` }}>Desktop</span>
-        </div>
       </EditorSection>
     )
   }
@@ -602,9 +598,6 @@ function FormEditor({
           config={{ min: 0.5, max: 4, step: 0.25, defaultUnit: '' }}
           onChange={(value) => setField('icons', { ...data.icons, 'stroke-width': value })}
         />
-        <div className="icon-preview" style={{ '--icon-size': data.icons.size, '--icon-stroke': data.icons['stroke-width'] } as React.CSSProperties}>
-          <Save /><Palette /><Download /><Sparkles />
-        </div>
       </EditorSection>
     )
   }
@@ -763,6 +756,33 @@ function SelectField({
         ))}
       </select>
     </label>
+  )
+}
+
+function ShadowControl({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+}) {
+  return (
+    <div className="shadow-control">
+      <div className="shadow-header">
+        <span className="shadow-label">{label}</span>
+        <span className="shadow-value">{value}</span>
+      </div>
+      <div className="shadow-preview-row">
+        <div className="shadow-preview-box" style={{ boxShadow: value }} />
+        <input
+          className="shadow-input"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </div>
+    </div>
   )
 }
 
