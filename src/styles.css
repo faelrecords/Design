@@ -278,7 +278,7 @@ button { color: inherit; }
 }
 .preview-page svg { width: var(--icon-size); height: var(--icon-size); stroke-width: var(--icon-stroke); }
 .demo-nav { height: 66px; display: flex; align-items: center; gap: 21px; padding: 0 28px; border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent); font-size: 10px; }
-.demo-logo { display: flex; align-items: center; gap: 7px; margin-right: auto; font-size: 13px; font-weight: 700; }
+.demo-logo { display: flex; align-items: center; gap: 7px; margin-right: auto; font-size: 13px; font-weight: var(--label-weight); }
 .demo-logo svg { color: var(--primary); }
 .demo-links { display: flex; gap: 22px; color: var(--text-secondary); }
 .demo-links a { cursor: pointer; }
@@ -286,7 +286,7 @@ button { color: inherit; }
 .ghost-action { color: var(--text-primary); background: transparent; font-size: 10px; }
 .primary-action {
   padding: 10px 15px; border-radius: var(--control-radius); color: color-mix(in srgb, var(--background) 88%, black);
-  background: var(--primary); font-weight: 600; box-shadow: 0 8px 30px color-mix(in srgb, var(--primary) 16%, transparent);
+  background: var(--primary); font-weight: var(--label-weight); box-shadow: 0 8px 30px color-mix(in srgb, var(--primary) 16%, transparent);
 }
 .primary-action:hover, .primary-action.forced-hover { background: var(--state-hover); }
 .primary-action:focus-visible, .primary-action.forced-focus {

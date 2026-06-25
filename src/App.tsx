@@ -129,15 +129,16 @@ function App() {
     const families = Array.from(new Set(data.googleFonts || []))
     document.querySelectorAll('[data-design-google-font]').forEach((element) => element.remove())
     if (!families.length) return
+    const weights = '100;200;300;400;500;600;700;800;900'
     families.forEach((family) => {
       const encoded = encodeURIComponent(family).replace(/%20/g, '+')
       const link = document.createElement('link')
       link.dataset.designGoogleFont = family
       link.rel = 'stylesheet'
-      link.href = `https://fonts.googleapis.com/css2?family=${encoded}:wght@100..900&display=swap`
+      link.href = `https://fonts.googleapis.com/css2?family=${encoded}:wght@${weights}&display=swap`
       link.onerror = () => {
         link.onerror = null
-        link.href = `https://fonts.googleapis.com/css2?family=${encoded}&display=swap`
+        link.href = `https://fonts.googleapis.com/css2?family=${encoded}:wght@${weights}&display=swap`
       }
       document.head.appendChild(link)
     })
