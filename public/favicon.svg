@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="6" fill="#080a09"/>
-  <text x="16" y="22" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="14" fill="#45E58B">D</text>
+  <g transform="translate(16,16)" stroke="#45E58B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0-10L2-3L9 0L2 3L0 10L-2 3L-9 0L-2-3Z"/>
+    <path d="M6-6L7-3L10-2L7 0L6 3L5 0L2-2L5-3Z"/>
+  </g>
 </svg>
